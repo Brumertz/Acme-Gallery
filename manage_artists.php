@@ -46,51 +46,15 @@ $artists = $stmt->fetchAll(PDO::FETCH_ASSOC);
     .hide-on-small {
         display: none;
     }
-
     .action-buttons {
         display: none;
     }
-}
-
-/* Toggle button styling for small screens */
-.table-toggle-button {
-    display: none;
-    cursor: pointer;
-}
-
-@media (max-width: 768px) {
-    .table-toggle-button {
-        display: inline-block;
-        margin-bottom: 10px;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        padding: 5px 10px;
-        font-size: 16px;
-        border-radius: 5px;
-    }
-
-    .table-toggle-button .navbar-toggler-icon {
-        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
-        width: 20px;
-        height: 20px;
-        display: inline-block;
-    }
-}
-
-/* Show hidden columns and action buttons when .show is added */
-.show .hide-on-small,
-.show .action-buttons {
-    display: table-cell;
 }
 </style>
 
 <div class="container mt-5">
     <h2>Manage Artists</h2>
     <button class="btn btn-success mb-3" data-toggle="modal" data-target="#artistModal">Add Artist</button>
-
-    <!-- Toggle Button for Small Screens -->
-    
 
     <div class="table-responsive">
         <table class="table table-bordered table-hover">
@@ -177,15 +141,28 @@ $artists = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <script>
-// Function to toggle columns for small screens
-
-
-// Show action buttons only when clicking a row
+// Show action buttons only when clicking a row and in responsive mode
 function showActions(row) {
-    const actionButtons = row.querySelector('.action-buttons');
-    actionButtons.style.display = actionButtons.style.display === 'table-cell' ? 'none' : 'table-cell';
+    // Check if the screen width is 768px or less (responsive mode)
+    if (window.innerWidth <= 768) {
+        const actionButtons = row.querySelector('.action-buttons');
+        actionButtons.style.display = actionButtons.style.display === 'table-cell' ? 'none' : 'table-cell';
+    }
 }
 
+// Open Add Modal
+function openAddModal() {
+    document.getElementById('modalTitle').textContent = "Add Artist";
+    document.getElementById('artistID').value = '';
+    document.getElementById('artistName').value = '';
+    document.getElementById('lifeSpan').value = '';
+    document.getElementById('nationality').value = '';
+    document.getElementById('century').value = '';
+    document.getElementById('thumbnail').value = ''; // Clear the file input
+    $('#artistModal').modal('show');
+}
+
+// Open Edit Modal and populate fields with existing data
 document.querySelectorAll('.edit-btn').forEach(button => {
     button.addEventListener('click', () => {
         const artistID = button.getAttribute('data-id');

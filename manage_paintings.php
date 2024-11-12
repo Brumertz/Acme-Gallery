@@ -9,18 +9,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $media = $_POST['media'];
     $style = $_POST['style'];
     $artistID = $_POST['artistID'];
+    
+    // Check if a new image was uploaded
     $image = !empty($_FILES['image']['tmp_name']) ? file_get_contents($_FILES['image']['tmp_name']) : null;
 
-    if (isset($_POST['action']) && $_POST['action'] === 'edit' && !empty($_POST['paintingID'])) {
+    if (!empty($_POST['paintingID'])) {
+        // Update painting
         $paintingID = $_POST['paintingID'];
-        $stmt = $pdo->prepare("UPDATE Painting SET Title = ?, Finished = ?, Media = ?, Style = ?, Image = ?, ArtistID = ? WHERE PaintingID = ?");
-        $stmt->execute([$title, $finished, $media, $style, $image, $artistID, $paintingID]);
-    } elseif (isset($_POST['action']) && $_POST['action'] === 'add') {
+        if ($image === null) {
+            $stmt = $pdo->prepare("UPDATE Painting SET Title = ?, Finished = ?, Media = ?, Style = ?, ArtistID = ? WHERE PaintingID = ?");
+            $stmt->execute([$title, $finished, $media, $style, $artistID, $paintingID]);
+        } else {
+            $stmt = $pdo->prepare("UPDATE Painting SET Title = ?, Finished = ?, Media = ?, Style = ?, Image = ?, ArtistID = ? WHERE PaintingID = ?");
+            $stmt->execute([$title, $finished, $media, $style, $image, $artistID, $paintingID]);
+        }
+    } else {
+        // Add new painting
         $stmt = $pdo->prepare("INSERT INTO Painting (Title, Finished, Media, Style, Image, ArtistID) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->execute([$title, $finished, $media, $style, $image, $artistID]);
     }
 
-    header("Location: manage_paintings.php?updated=" . time());
+    header("Location: manage_paintings.php");
     exit;
 }
 
@@ -44,53 +53,20 @@ $artists = $artistStmt->fetchAll(PDO::FETCH_ASSOC);
 
 <!-- CSS for Responsive Table and Toggle Button -->
 <style>
+/* Hide "Media" and "Style" columns and action buttons on small screens */
 @media (max-width: 768px) {
-    /* Hide "Media" and "Style" columns and action buttons on small screens */
     .hide-on-small {
         display: none;
     }
-
     .action-buttons {
         display: none;
     }
-}
-
-/* Toggle button styling for small screens */
-.table-toggle-button {
-    display: none;
-    cursor: pointer;
-}
-
-@media (max-width: 768px) {
-    .table-toggle-button {
-        display: inline-block;
-        margin-bottom: 10px;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        padding: 5px 10px;
-        font-size: 16px;
-        border-radius: 5px;
-    }
-
-    .table-toggle-button .navbar-toggler-icon {
-        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
-        width: 20px;
-        height: 20px;
-        display: inline-block;
-    }
-}
-
-/* Show hidden columns and action buttons when .show is added */
-.show .hide-on-small,
-.show .action-buttons {
-    display: table-cell;
 }
 </style>
 
 <div class="container mt-5">
     <h2>Manage Paintings</h2>
-    <button class="btn btn-success mb-3" onclick="openAddModal()">Add Painting</button>
+    <button class="btn btn-success mb-3" data-toggle="modal" data-target="#paintingModal" onclick="openAddModal()">Add Painting</button>
 
     <div class="table-responsive">
         <table class="table table-bordered table-hover">
@@ -121,8 +97,16 @@ $artists = $artistStmt->fetchAll(PDO::FETCH_ASSOC);
                         <td class="hide-on-small"><?= htmlspecialchars($painting['Style']) ?></td>
                         <td class="hide-on-small"><?= htmlspecialchars($painting['ArtistName']) ?></td>
                         <td class="action-buttons">
-                            <button class="btn btn-success btn-sm" onclick="event.stopPropagation(); openEditModal(<?= htmlspecialchars(json_encode($painting)) ?>)">Edit</button>
-                            <a href="manage_paintings.php?delete=<?= $painting['PaintingID'] ?>" class="btn btn-danger btn-sm" onclick="event.stopPropagation(); return confirm('Are you sure you want to delete this painting?');">Delete</a>
+                            <button class="btn btn-success btn-sm edit-btn" 
+                                    data-id="<?= $painting['PaintingID'] ?>" 
+                                    data-title="<?= htmlspecialchars($painting['Title']) ?>" 
+                                    data-finished="<?= htmlspecialchars($painting['Finished']) ?>" 
+                                    data-media="<?= htmlspecialchars($painting['Media']) ?>" 
+                                    data-style="<?= htmlspecialchars($painting['Style']) ?>" 
+                                    data-artist-id="<?= $painting['ArtistID'] ?>">
+                                Edit
+                            </button>
+                            <a href="manage_paintings.php?delete=<?= $painting['PaintingID'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this painting?');">Delete</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -142,7 +126,6 @@ $artists = $artistStmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <div class="modal-body">
                     <input type="hidden" name="paintingID" id="paintingID">
-                    <input type="hidden" name="action" id="action" value="add">
                     <div class="form-group">
                         <label for="title">Title</label>
                         <input type="text" name="title" id="title" class="form-control" required>
@@ -182,18 +165,18 @@ $artists = $artistStmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <script>
-
-
-// Show action buttons only when clicking a row
+// Show action buttons only when clicking a row and in responsive mode
 function showActions(row) {
-    const actionButtons = row.querySelector('.action-buttons');
-    actionButtons.style.display = actionButtons.style.display === 'table-cell' ? 'none' : 'table-cell';
+    // Check if the screen width is 768px or less (responsive mode)
+    if (window.innerWidth <= 768) {
+        const actionButtons = row.querySelector('.action-buttons');
+        actionButtons.style.display = actionButtons.style.display === 'table-cell' ? 'none' : 'table-cell';
+    }
 }
 
 // Open Add Modal
 function openAddModal() {
     document.getElementById('modalTitle').textContent = "Add Painting";
-    document.getElementById('action').value = "add";
     document.getElementById('paintingID').value = '';
     document.getElementById('title').value = '';
     document.getElementById('finished').value = '';
@@ -205,18 +188,26 @@ function openAddModal() {
 }
 
 // Open Edit Modal and populate fields with existing data
-function openEditModal(painting) {
-    document.getElementById('modalTitle').textContent = "Edit Painting";
-    document.getElementById('action').value = "edit";
-    document.getElementById('paintingID').value = painting.PaintingID;
-    document.getElementById('title').value = painting.Title;
-    document.getElementById('finished').value = painting.Finished;
-    document.getElementById('media').value = painting.Media;
-    document.getElementById('style').value = painting.Style;
-    document.getElementById('artistID').value = painting.ArtistID;
-    document.getElementById('image').value = ''; // Clear the file input
-    $('#paintingModal').modal('show');
-}
+document.querySelectorAll('.edit-btn').forEach(button => {
+    button.addEventListener('click', () => {
+        const paintingID = button.getAttribute('data-id');
+        const title = button.getAttribute('data-title');
+        const finished = button.getAttribute('data-finished');
+        const media = button.getAttribute('data-media');
+        const style = button.getAttribute('data-style');
+        const artistID = button.getAttribute('data-artist-id');
+
+        document.getElementById('paintingID').value = paintingID;
+        document.getElementById('title').value = title;
+        document.getElementById('finished').value = finished;
+        document.getElementById('media').value = media;
+        document.getElementById('style').value = style;
+        document.getElementById('artistID').value = artistID;
+        
+        document.getElementById('modalTitle').textContent = "Edit Painting";
+        $('#paintingModal').modal('show');
+    });
+});
 </script>
 
 <?php include 'includes/footer.php'; ?>
