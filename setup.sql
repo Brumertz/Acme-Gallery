@@ -1,0 +1,23 @@
+CREATE DATABASE IF NOT EXISTS acme_Gallery;
+USE acme_Gallery;
+
+CREATE TABLE IF NOT EXISTS Artist (
+    ArtistID INT AUTO_INCREMENT PRIMARY KEY,
+    ArtistName VARCHAR(255) NOT NULL,
+    LifeSpan VARCHAR(50),
+    Nationality VARCHAR(100),
+    Century VARCHAR(20),
+    Thumbnail LONGBLOB
+);
+
+CREATE TABLE IF NOT EXISTS Painting (
+    PaintingID INT AUTO_INCREMENT PRIMARY KEY,
+    Title VARCHAR(255) NOT NULL,
+    Finished YEAR NOT NULL,
+    Media VARCHAR(50) NOT NULL,
+    Style VARCHAR(50) NOT NULL,
+    Image LONGBLOB,
+    ArtistID INT,
+    FOREIGN KEY (ArtistID) REFERENCES Artist(ArtistID) ON DELETE SET NULL
+);
+
