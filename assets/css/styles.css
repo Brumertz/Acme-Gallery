@@ -1,0 +1,44 @@
+/* CSS to hide "Media" and "Style" columns and action buttons on small screens */
+@media (max-width: 768px) {
+    /* Hide "Media" and "Style" columns */
+    .hide-on-small {
+        display: none;
+    }
+
+    /* Hide action buttons */
+    .action-buttons {
+        display: none;
+    }
+}
+
+/* CSS for the toggle button styling */
+.table-toggle-button {
+    display: none; /* Hide the button by default */
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .table-toggle-button {
+        display: inline-block; /* Show the button on small screens */
+        margin-bottom: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 5px 10px;
+        font-size: 16px;
+        border-radius: 5px;
+    }
+
+    .table-toggle-button .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+    }
+}
+
+/* Show hidden columns and action buttons when .show is added */
+.show .hide-on-small,
+.show .action-buttons {
+    display: table-cell;
+}

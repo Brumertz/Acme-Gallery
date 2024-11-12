@@ -4,10 +4,6 @@ include 'includes/header.php';
 
 // Handle form submission for adding/updating a painting
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Debug: View submitted form data
-    var_dump($_POST);
-    
-    // Collect form data
     $title = $_POST['title'];
     $finished = $_POST['finished'];
     $media = $_POST['media'];
@@ -15,19 +11,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $artistID = $_POST['artistID'];
     $image = !empty($_FILES['image']['tmp_name']) ? file_get_contents($_FILES['image']['tmp_name']) : null;
 
-    // Check the action field to determine add or edit
     if (isset($_POST['action']) && $_POST['action'] === 'edit' && !empty($_POST['paintingID'])) {
-        // Update painting
         $paintingID = $_POST['paintingID'];
         $stmt = $pdo->prepare("UPDATE Painting SET Title = ?, Finished = ?, Media = ?, Style = ?, Image = ?, ArtistID = ? WHERE PaintingID = ?");
         $stmt->execute([$title, $finished, $media, $style, $image, $artistID, $paintingID]);
     } elseif (isset($_POST['action']) && $_POST['action'] === 'add') {
-        // Add new painting
         $stmt = $pdo->prepare("INSERT INTO Painting (Title, Finished, Media, Style, Image, ArtistID) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->execute([$title, $finished, $media, $style, $image, $artistID]);
     }
 
-    header("Location: manage_paintings.php");
+    header("Location: manage_paintings.php?updated=" . time());
     exit;
 }
 
@@ -49,45 +42,93 @@ $artistStmt = $pdo->query("SELECT ArtistID, ArtistName FROM Artist");
 $artists = $artistStmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
+<!-- CSS for Responsive Table and Toggle Button -->
+<style>
+@media (max-width: 768px) {
+    /* Hide "Media" and "Style" columns and action buttons on small screens */
+    .hide-on-small {
+        display: none;
+    }
+
+    .action-buttons {
+        display: none;
+    }
+}
+
+/* Toggle button styling for small screens */
+.table-toggle-button {
+    display: none;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .table-toggle-button {
+        display: inline-block;
+        margin-bottom: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 5px 10px;
+        font-size: 16px;
+        border-radius: 5px;
+    }
+
+    .table-toggle-button .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+    }
+}
+
+/* Show hidden columns and action buttons when .show is added */
+.show .hide-on-small,
+.show .action-buttons {
+    display: table-cell;
+}
+</style>
+
 <div class="container mt-5">
     <h2>Manage Paintings</h2>
     <button class="btn btn-success mb-3" onclick="openAddModal()">Add Painting</button>
 
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Image</th>
-                <th>Title</th>
-                <th>Finished Year</th>
-                <th>Media</th>
-                <th>Style</th>
-                <th>Artist</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($paintings as $painting): ?>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="thead-light">
                 <tr>
-                    <td>
-                        <?php if (!empty($painting['Image'])): ?>
-                            <img src="data:image/jpeg;base64,<?= base64_encode($painting['Image']) ?>" alt="<?= htmlspecialchars($painting['Title']) ?>" width="100">
-                        <?php else: ?>
-                            <span>No image</span>
-                        <?php endif; ?>
-                    </td>
-                    <td><?= htmlspecialchars($painting['Title']) ?></td>
-                    <td><?= htmlspecialchars($painting['Finished']) ?></td>
-                    <td><?= htmlspecialchars($painting['Media']) ?></td>
-                    <td><?= htmlspecialchars($painting['Style']) ?></td>
-                    <td><?= htmlspecialchars($painting['ArtistName']) ?></td>
-                    <td>
-                        <button class="btn btn-warning btn-sm" onclick="openEditModal(<?= htmlspecialchars(json_encode($painting)) ?>)">Edit</button>
-                        <a href="manage_paintings.php?delete=<?= $painting['PaintingID'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this painting?');">Delete</a>
-                    </td>
+                    <th>Image</th>
+                    <th>Title</th>
+                    <th class="hide-on-small">Finished Year</th>
+                    <th class="hide-on-small">Media</th>
+                    <th class="hide-on-small">Style</th>
+                    <th class="hide-on-small">Artist</th>
+                    <th class="action-buttons">Actions</th>
                 </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <?php foreach ($paintings as $painting): ?>
+                    <tr onclick="showActions(this)">
+                        <td>
+                            <?php if (!empty($painting['Image'])): ?>
+                                <img src="data:image/jpeg;base64,<?= base64_encode($painting['Image']) ?>" alt="<?= htmlspecialchars($painting['Title']) ?>" class="img-fluid" style="max-width: 100px;">
+                            <?php else: ?>
+                                <span>No image</span>
+                            <?php endif; ?>
+                        </td>
+                        <td><?= htmlspecialchars($painting['Title']) ?></td>
+                        <td class="hide-on-small"><?= htmlspecialchars($painting['Finished']) ?></td>
+                        <td class="hide-on-small"><?= htmlspecialchars($painting['Media']) ?></td>
+                        <td class="hide-on-small"><?= htmlspecialchars($painting['Style']) ?></td>
+                        <td class="hide-on-small"><?= htmlspecialchars($painting['ArtistName']) ?></td>
+                        <td class="action-buttons">
+                            <button class="btn btn-success btn-sm" onclick="event.stopPropagation(); openEditModal(<?= htmlspecialchars(json_encode($painting)) ?>)">Edit</button>
+                            <a href="manage_paintings.php?delete=<?= $painting['PaintingID'] ?>" class="btn btn-danger btn-sm" onclick="event.stopPropagation(); return confirm('Are you sure you want to delete this painting?');">Delete</a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- Modal for Add/Edit Painting -->
@@ -101,7 +142,7 @@ $artists = $artistStmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <div class="modal-body">
                     <input type="hidden" name="paintingID" id="paintingID">
-                    <input type="hidden" name="action" id="action" value="add"> <!-- Action identifier -->
+                    <input type="hidden" name="action" id="action" value="add">
                     <div class="form-group">
                         <label for="title">Title</label>
                         <input type="text" name="title" id="title" class="form-control" required>
@@ -141,7 +182,15 @@ $artists = $artistStmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <script>
-// Open Add Modal and set the action to "add"
+
+
+// Show action buttons only when clicking a row
+function showActions(row) {
+    const actionButtons = row.querySelector('.action-buttons');
+    actionButtons.style.display = actionButtons.style.display === 'table-cell' ? 'none' : 'table-cell';
+}
+
+// Open Add Modal
 function openAddModal() {
     document.getElementById('modalTitle').textContent = "Add Painting";
     document.getElementById('action').value = "add";
@@ -151,6 +200,7 @@ function openAddModal() {
     document.getElementById('media').value = '';
     document.getElementById('style').value = '';
     document.getElementById('artistID').value = '';
+    document.getElementById('image').value = ''; // Clear the file input
     $('#paintingModal').modal('show');
 }
 
@@ -164,6 +214,7 @@ function openEditModal(painting) {
     document.getElementById('media').value = painting.Media;
     document.getElementById('style').value = painting.Style;
     document.getElementById('artistID').value = painting.ArtistID;
+    document.getElementById('image').value = ''; // Clear the file input
     $('#paintingModal').modal('show');
 }
 </script>
