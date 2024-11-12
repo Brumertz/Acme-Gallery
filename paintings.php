@@ -11,7 +11,8 @@ $paintings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="container mt-5">
-    <h2>All Paintings</h2>
+    <h2>Our Collection</h2>
+    <br>
     <div class="row">
         <?php foreach ($paintings as $painting): ?>
             <div class="col-md-6 mb-4">

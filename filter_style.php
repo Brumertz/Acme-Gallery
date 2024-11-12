@@ -2,7 +2,7 @@
 include 'config.php';
 include 'includes/header.php';
 
-$query = "SELECT DISTINCT Style FROM Painting";
+$query = "SELECT DISTINCT Style FROM painting";
 $stmt = $pdo->prepare($query);
 $stmt->execute();
 $styles = $stmt->fetchAll(PDO::FETCH_COLUMN);

@@ -3,7 +3,7 @@ include 'config.php';
 include 'includes/header.php';
 
 // Fetch unique artist names from the database
-$query = "SELECT ArtistID, ArtistName FROM Artist";
+$query = "SELECT ArtistID, ArtistName FROM artist";
 $stmt = $pdo->prepare($query);
 $stmt->execute();
 $artists = $stmt->fetchAll(PDO::FETCH_ASSOC);

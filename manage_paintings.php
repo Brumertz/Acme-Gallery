@@ -4,6 +4,10 @@ include 'includes/header.php';
 
 // Handle form submission for adding/updating a painting
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Debug: View submitted form data
+    var_dump($_POST);
+    
+    // Collect form data
     $title = $_POST['title'];
     $finished = $_POST['finished'];
     $media = $_POST['media'];
@@ -11,12 +15,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $artistID = $_POST['artistID'];
     $image = !empty($_FILES['image']['tmp_name']) ? file_get_contents($_FILES['image']['tmp_name']) : null;
 
-    if (isset($_POST['paintingID'])) {
+    // Check the action field to determine add or edit
+    if (isset($_POST['action']) && $_POST['action'] === 'edit' && !empty($_POST['paintingID'])) {
         // Update painting
         $paintingID = $_POST['paintingID'];
         $stmt = $pdo->prepare("UPDATE Painting SET Title = ?, Finished = ?, Media = ?, Style = ?, Image = ?, ArtistID = ? WHERE PaintingID = ?");
         $stmt->execute([$title, $finished, $media, $style, $image, $artistID, $paintingID]);
-    } else {
+    } elseif (isset($_POST['action']) && $_POST['action'] === 'add') {
         // Add new painting
         $stmt = $pdo->prepare("INSERT INTO Painting (Title, Finished, Media, Style, Image, ArtistID) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->execute([$title, $finished, $media, $style, $image, $artistID]);
@@ -46,11 +51,12 @@ $artists = $artistStmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="container mt-5">
     <h2>Manage Paintings</h2>
-    <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#paintingModal">Add Painting</button>
+    <button class="btn btn-success mb-3" onclick="openAddModal()">Add Painting</button>
 
     <table class="table table-bordered">
         <thead>
             <tr>
+                <th>Image</th>
                 <th>Title</th>
                 <th>Finished Year</th>
                 <th>Media</th>
@@ -62,20 +68,20 @@ $artists = $artistStmt->fetchAll(PDO::FETCH_ASSOC);
         <tbody>
             <?php foreach ($paintings as $painting): ?>
                 <tr>
+                    <td>
+                        <?php if (!empty($painting['Image'])): ?>
+                            <img src="data:image/jpeg;base64,<?= base64_encode($painting['Image']) ?>" alt="<?= htmlspecialchars($painting['Title']) ?>" width="100">
+                        <?php else: ?>
+                            <span>No image</span>
+                        <?php endif; ?>
+                    </td>
                     <td><?= htmlspecialchars($painting['Title']) ?></td>
                     <td><?= htmlspecialchars($painting['Finished']) ?></td>
                     <td><?= htmlspecialchars($painting['Media']) ?></td>
                     <td><?= htmlspecialchars($painting['Style']) ?></td>
                     <td><?= htmlspecialchars($painting['ArtistName']) ?></td>
                     <td>
-                        <button class="btn btn-warning btn-sm edit-btn" data-id="<?= $painting['PaintingID'] ?>"
-                                data-title="<?= htmlspecialchars($painting['Title']) ?>"
-                                data-finished="<?= htmlspecialchars($painting['Finished']) ?>"
-                                data-media="<?= htmlspecialchars($painting['Media']) ?>"
-                                data-style="<?= htmlspecialchars($painting['Style']) ?>"
-                                data-artist-id="<?= htmlspecialchars($painting['ArtistID']) ?>">
-                            Edit
-                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="openEditModal(<?= htmlspecialchars(json_encode($painting)) ?>)">Edit</button>
                         <a href="manage_paintings.php?delete=<?= $painting['PaintingID'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this painting?');">Delete</a>
                     </td>
                 </tr>
@@ -95,6 +101,7 @@ $artists = $artistStmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <div class="modal-body">
                     <input type="hidden" name="paintingID" id="paintingID">
+                    <input type="hidden" name="action" id="action" value="add"> <!-- Action identifier -->
                     <div class="form-group">
                         <label for="title">Title</label>
                         <input type="text" name="title" id="title" class="form-control" required>
@@ -134,26 +141,31 @@ $artists = $artistStmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <script>
-document.querySelectorAll('.edit-btn').forEach(button => {
-    button.addEventListener('click', () => {
-        const paintingID = button.getAttribute('data-id');
-        const title = button.getAttribute('data-title');
-        const finished = button.getAttribute('data-finished');
-        const media = button.getAttribute('data-media');
-        const style = button.getAttribute('data-style');
-        const artistID = button.getAttribute('data-artist-id');
+// Open Add Modal and set the action to "add"
+function openAddModal() {
+    document.getElementById('modalTitle').textContent = "Add Painting";
+    document.getElementById('action').value = "add";
+    document.getElementById('paintingID').value = '';
+    document.getElementById('title').value = '';
+    document.getElementById('finished').value = '';
+    document.getElementById('media').value = '';
+    document.getElementById('style').value = '';
+    document.getElementById('artistID').value = '';
+    $('#paintingModal').modal('show');
+}
 
-        document.getElementById('paintingID').value = paintingID;
-        document.getElementById('title').value = title;
-        document.getElementById('finished').value = finished;
-        document.getElementById('media').value = media;
-        document.getElementById('style').value = style;
-        document.getElementById('artistID').value = artistID;
-
-        document.getElementById('modalTitle').textContent = "Edit Painting";
-        $('#paintingModal').modal('show');
-    });
-});
+// Open Edit Modal and populate fields with existing data
+function openEditModal(painting) {
+    document.getElementById('modalTitle').textContent = "Edit Painting";
+    document.getElementById('action').value = "edit";
+    document.getElementById('paintingID').value = painting.PaintingID;
+    document.getElementById('title').value = painting.Title;
+    document.getElementById('finished').value = painting.Finished;
+    document.getElementById('media').value = painting.Media;
+    document.getElementById('style').value = painting.Style;
+    document.getElementById('artistID').value = painting.ArtistID;
+    $('#paintingModal').modal('show');
+}
 </script>
 
 <?php include 'includes/footer.php'; ?>

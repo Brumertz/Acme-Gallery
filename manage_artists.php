@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $century = $_POST['century'];
     $thumbnail = !empty($_FILES['thumbnail']['tmp_name']) ? file_get_contents($_FILES['thumbnail']['tmp_name']) : null;
 
-    if (isset($_POST['artistID'])) {
+    if (isset($_POST['artistID']) && !empty($_POST['artistID'])) {
         // Update artist
         $artistID = $_POST['artistID'];
         $stmt = $pdo->prepare("UPDATE Artist SET ArtistName = ?, LifeSpan = ?, Nationality = ?, Century = ?, Thumbnail = ? WHERE ArtistID = ?");
@@ -41,11 +41,12 @@ $artists = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="container mt-5">
     <h2>Manage Artists</h2>
-    <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#artistModal">Add Artist</button>
+    <button class="btn btn-success mb-3" data-toggle="modal" data-target="#artistModal">Add Artist</button>
 
     <table class="table table-bordered">
         <thead>
             <tr>
+                <th>Thumbnail</th>
                 <th>Name</th>
                 <th>Life Span</th>
                 <th>Nationality</th>
@@ -56,6 +57,13 @@ $artists = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <tbody>
             <?php foreach ($artists as $artist): ?>
                 <tr>
+                    <td>
+                        <?php if (!empty($artist['Thumbnail'])): ?>
+                            <img src="data:image/jpeg;base64,<?= base64_encode($artist['Thumbnail']) ?>" alt="<?= htmlspecialchars($artist['ArtistName']) ?>" width="100">
+                        <?php else: ?>
+                            <span>No image</span>
+                        <?php endif; ?>
+                    </td>
                     <td><?= htmlspecialchars($artist['ArtistName']) ?></td>
                     <td><?= htmlspecialchars($artist['LifeSpan']) ?></td>
                     <td><?= htmlspecialchars($artist['Nationality']) ?></td>
