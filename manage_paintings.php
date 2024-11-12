@@ -66,7 +66,7 @@ $artists = $artistStmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="container mt-5">
     <h2>Manage Paintings</h2>
-    <button class="btn btn-success mb-3" data-toggle="modal" data-target="#paintingModal" onclick="openAddModal()">Add Painting</button>
+    <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#paintingModal" onclick="openAddModal()">Add Painting</button>
 
     <div class="table-responsive">
         <table class="table table-bordered table-hover">

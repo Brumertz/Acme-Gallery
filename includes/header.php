@@ -23,7 +23,6 @@
                 <li class="nav-item"><a class="nav-link" href="paintings.php">View All Paintings</a></li>
                 <li class="nav-item"><a class="nav-link" href="filter_style.php">Filter by Style</a></li>
                 <li class="nav-item"><a class="nav-link" href="filter_artist.php">Filter by Artist</a></li>
-                <li class="nav-item"><a class="nav-link" href="search.php">Search Painting</a></li>
                 <li class="nav-item"><a class="nav-link" href="manage_artists.php">Manage Artists</a></li>
                 <li class="nav-item"><a class="nav-link" href="manage_paintings.php">Manage Paintings</a></li>
             </ul>

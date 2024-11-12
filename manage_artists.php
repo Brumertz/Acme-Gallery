@@ -54,14 +54,14 @@ $artists = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="container mt-5">
     <h2>Manage Artists</h2>
-    <button class="btn btn-success mb-3" data-toggle="modal" data-target="#artistModal">Add Artist</button>
+    <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#artistModal">Add Artist</button>
 
     <div class="table-responsive">
         <table class="table table-bordered table-hover">
             <thead class="thead-light">
                 <tr>
-                    <th>Thumbnail</th>
-                    <th>Name</th>
+                <th>Picture</th>
+                    <th>Artist Name</th>
                     <th class="hide-on-small">Life Span</th>
                     <th class="hide-on-small">Nationality</th>
                     <th class="hide-on-small">Century</th>
