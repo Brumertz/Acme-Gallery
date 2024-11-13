@@ -111,6 +111,12 @@ $paintings = $stmt->fetchAll(PDO::FETCH_ASSOC);
         font-weight: bold;
         color: #000;
     }
+
+    h2{
+        text-align: center;
+        margin-bottom: 50px;
+
+    }
 </style>
 
 <?php include 'includes/footer.php'; ?>

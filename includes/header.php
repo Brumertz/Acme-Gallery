@@ -22,6 +22,8 @@
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="paintings.php">Our Paintings</a></li>
                 <li class="nav-item"><a class="nav-link" href="artists.php">Greatest Artists</a></li>
+                <li class="nav-item"><a class="nav-link" href="signup.php">SignUp</a></li>
+                <li class="nav-item"><a class="nav-link" href="admin.php">Admin Panel</a></li>
                 <li class="nav-item"><a class="nav-link" href="manage_artists.php">Manage Artists</a></li>
                 <li class="nav-item"><a class="nav-link" href="manage_paintings.php">Manage Paintings</a></li>
 
