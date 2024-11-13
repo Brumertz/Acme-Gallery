@@ -16,6 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($_POST['paintingID'])) {
         // Update painting
         $paintingID = $_POST['paintingID'];
+        
+        // Only update Image if a new one is uploaded
         if ($image === null) {
             $stmt = $pdo->prepare("UPDATE Painting SET Title = ?, Finished = ?, Media = ?, Style = ?, ArtistID = ? WHERE PaintingID = ?");
             $stmt->execute([$title, $finished, $media, $style, $artistID, $paintingID]);
@@ -29,15 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$title, $finished, $media, $style, $image, $artistID]);
     }
 
-    header("Location: manage_paintings.php");
-    exit;
-}
-
-// Handle deletion
-if (isset($_GET['delete'])) {
-    $paintingID = $_GET['delete'];
-    $stmt = $pdo->prepare("DELETE FROM Painting WHERE PaintingID = ?");
-    $stmt->execute([$paintingID]);
     header("Location: manage_paintings.php");
     exit;
 }
