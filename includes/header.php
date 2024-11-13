@@ -22,10 +22,6 @@
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="paintings.php">Our Paintings</a></li>
                 <li class="nav-item"><a class="nav-link" href="artists.php">Greatest Artists</a></li>
-                <li class="nav-item"><a class="nav-link" href="filter_style.php">FBy Style</a></li>
-                <li class="nav-item"><a class="nav-link" href="filter_artist.php">FBy Artist</a></li>
-                <li class="nav-item"><a class="nav-link" href="filter_period.php">FBy Period</a></li>
-                <li class="nav-item"><a class="nav-link" href="filter_nationality.php">FBy Nationality</a></li>
                 <li class="nav-item"><a class="nav-link" href="manage_artists.php">Manage Artists</a></li>
                 <li class="nav-item"><a class="nav-link" href="manage_paintings.php">Manage Paintings</a></li>
 
