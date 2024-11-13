@@ -11,8 +11,16 @@ $stmt->execute();
 $paintings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
+
+<div  style="text-align: center;" class="container mt-5">
+    <h1>Welcome to Acme Arts Gallery</h1>
+    <br>
+    <p>Discover our curated selection of artwork and artists.</p>
+    <p><a href="signup.php" class="btn btn-primary">Join Us</a></p>
+</div>
 <div class="container mt-5">
-    <h2>All Paintings</h2>
+    <h2>Collection</h2>
+    <br>
     <div class="row">
         <?php foreach ($paintings as $painting): ?>
             <div class="col-md-6 mb-4">
@@ -40,5 +48,13 @@ $paintings = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php endforeach; ?>
     </div>
 </div>
+<style>
 
+h2{
+        text-align: center;
+        margin-bottom: 50px;
+
+    }
+
+</style>
 <?php include 'includes/footer.php'; ?>

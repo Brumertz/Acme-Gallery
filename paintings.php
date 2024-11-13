@@ -4,14 +4,22 @@ include 'includes/header.php';
 
 $searchQuery = isset($_GET['search']) ? $_GET['search'] : '';
 $styleFilter = isset($_GET['style']) ? $_GET['style'] : '';
+$artistFilter = isset($_GET['artist']) ? $_GET['artist'] : '';
 
+// Get all unique artists for the dropdown filter
+$artists = $pdo->query("SELECT DISTINCT ArtistName, ArtistID FROM Artist")->fetchAll(PDO::FETCH_ASSOC);
 $styles = $pdo->query("SELECT DISTINCT Style FROM Painting")->fetchAll(PDO::FETCH_COLUMN);
-
+// Build the query to get paintings filtered by artist
 $sql = "SELECT Painting.Title, Painting.Finished, Painting.Media, Painting.Style, Painting.Image, Artist.ArtistName 
         FROM Painting 
         LEFT JOIN Artist ON Painting.ArtistID = Artist.ArtistID 
         WHERE Painting.Title LIKE :search";
 $params = [':search' => "%$searchQuery%"];
+
+if ($artistFilter) {
+    $sql .= " AND Artist.ArtistID = :artist";
+    $params[':artist'] = $artistFilter;
+}
 
 if ($styleFilter) {
     $sql .= " AND Painting.Style = :style";
@@ -25,12 +33,29 @@ $paintings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="container mt-5">
     <h2>Our Collection</h2>
+    <br>
     <form method="GET" class="form-inline mb-3">
         <input type="text" name="search" class="form-control mr-2" placeholder="Search Painting Title" value="<?= htmlspecialchars($searchQuery) ?>">            
         </select>
+        
+        <label for="artistFilter" class="mr-2">Select Artist:</label>
+        <select name="artist" id="artistFilter" class="form-control mr-2" onchange="this.form.submit()">
+            <option value="">All</option>
+            <?php foreach ($artists as $artist): ?>
+                <option value="<?= $artist['ArtistID'] ?>" <?= $artist['ArtistID'] == $artistFilter ? 'selected' : '' ?>><?= htmlspecialchars($artist['ArtistName']) ?></option>
+            <?php endforeach; ?>
+        </select>
+        <label for="styleFilter" class="mr-2">Select Style:</label>
+        <select name="style" id="styleFilter" class="form-control mr-2" onchange="this.form.submit()">
+            <option value="">All</option>
+            <?php foreach ($styles as $style): ?>
+                <option value="<?= $style ?>" <?= $style == $styleFilter ? 'selected' : '' ?>><?= $style ?></option>
+            <?php endforeach; ?>
+        </select>
+
         <button type="submit" class="btn btn-primary">Search</button>
     </form>
-
+   
     <div class="collection">
         <?php foreach ($paintings as $painting): ?>
             <div class="item d-flex mb-4">
@@ -85,6 +110,12 @@ $paintings = $stmt->fetchAll(PDO::FETCH_ASSOC);
     .details p strong {
         font-weight: bold;
         color: #000;
+    }
+
+    h2{
+        text-align: center;
+        margin-bottom: 50px;
+
     }
 </style>
 

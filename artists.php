@@ -9,7 +9,10 @@ $nationalityFilter = isset($_GET['nationality']) ? $_GET['nationality'] : '';
 $periods = $pdo->query("SELECT DISTINCT Century FROM Artist")->fetchAll(PDO::FETCH_COLUMN);
 $nationalities = $pdo->query("SELECT DISTINCT Nationality FROM Artist")->fetchAll(PDO::FETCH_COLUMN);
 
-$sql = "SELECT * FROM Artist WHERE ArtistName LIKE :search";
+$sql = "SELECT * 
+    FROM Artist 
+    WHERE ArtistName 
+    LIKE :search";
 $params = [':search' => "%$searchQuery%"];
 
 if ($periodFilter) {
@@ -30,7 +33,22 @@ $artists = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <h2>Artists</h2>
     <form method="GET" class="form-inline mb-3">
         <input type="text" name="search" class="form-control mr-2" placeholder="Search Artist Name" value="<?= htmlspecialchars($searchQuery) ?>">
+        
+        <label for="periodFilter" class="mr-2">Select Period:</label>
+        <select name="period" id="periodFilter" class="form-control mr-2" onchange="this.form.submit()">
+            <option value="">All</option>
+            <?php foreach ($periods as $period): ?>
+                <option value="<?= $period ?>" <?= $period == $periodFilter ? 'selected' : '' ?>><?= $period ?></option>
+            <?php endforeach; ?>
+        </select>
        
+        <label for="nationalityFilter" class="mr-2">Select Nationality:</label>
+        <select name="nationality" id="nationalityFilter" class="form-control mr-2" onchange="this.form.submit()">
+            <option value="">All</option>
+            <?php foreach ($nationalities as $nationality): ?>
+                <option value="<?= $nationality ?>" <?= $nationality == $nationality ? 'selected' : '' ?>><?= $nationality ?></option>
+            <?php endforeach; ?>
+        </select>
         <button type="submit" class="btn btn-primary">Search</button>
     </form>
 
@@ -87,6 +105,12 @@ $artists = $stmt->fetchAll(PDO::FETCH_ASSOC);
     .details p strong {
         font-weight: bold;
         color: #000;
+    }
+
+    h2{
+        text-align: center;
+        margin-bottom: 50px;
+
     }
 </style>
 

@@ -54,13 +54,20 @@ $artists = $artistStmt->fetchAll(PDO::FETCH_ASSOC);
     .action-buttons {
         display: none;
     }
+    
 }
+h2{
+        text-align: center;
+        margin-bottom: 50px;
+
+    }
 </style>
 
 <div class="container mt-5">
     <h2>Manage Paintings</h2>
-    <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#paintingModal" onclick="openAddModal()">Add Painting</button>
-
+    <div style="text-align: center;">
+    <button style="display: inline-block;" class="btn btn-primary mb-3" data-toggle="modal" data-target="#paintingModal" onclick="openAddModal()">Add Painting</button>
+    </div>
     <div class="table-responsive">
         <table class="table table-bordered table-hover">
             <thead class="thead-light">
