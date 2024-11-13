@@ -8,28 +8,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $lifeSpan = $_POST['lifeSpan'];
     $nationality = $_POST['nationality'];
     $century = $_POST['century'];
+    
+    // Check if a new thumbnail was uploaded
     $thumbnail = !empty($_FILES['thumbnail']['tmp_name']) ? file_get_contents($_FILES['thumbnail']['tmp_name']) : null;
 
     if (isset($_POST['artistID']) && !empty($_POST['artistID'])) {
         // Update artist
         $artistID = $_POST['artistID'];
-        $stmt = $pdo->prepare("UPDATE Artist SET ArtistName = ?, LifeSpan = ?, Nationality = ?, Century = ?, Thumbnail = ? WHERE ArtistID = ?");
-        $stmt->execute([$artistName, $lifeSpan, $nationality, $century, $thumbnail, $artistID]);
+        
+        // Only update Thumbnail if a new one is uploaded
+        if ($thumbnail === null) {
+            $stmt = $pdo->prepare("UPDATE Artist SET ArtistName = ?, LifeSpan = ?, Nationality = ?, Century = ? WHERE ArtistID = ?");
+            $stmt->execute([$artistName, $lifeSpan, $nationality, $century, $artistID]);
+        } else {
+            $stmt = $pdo->prepare("UPDATE Artist SET ArtistName = ?, LifeSpan = ?, Nationality = ?, Century = ?, Thumbnail = ? WHERE ArtistID = ?");
+            $stmt->execute([$artistName, $lifeSpan, $nationality, $century, $thumbnail, $artistID]);
+        }
     } else {
         // Add new artist
         $stmt = $pdo->prepare("INSERT INTO Artist (ArtistName, LifeSpan, Nationality, Century, Thumbnail) VALUES (?, ?, ?, ?, ?)");
         $stmt->execute([$artistName, $lifeSpan, $nationality, $century, $thumbnail]);
     }
 
-    header("Location: manage_artists.php");
-    exit;
-}
-
-// Handle deletion
-if (isset($_GET['delete'])) {
-    $artistID = $_GET['delete'];
-    $stmt = $pdo->prepare("DELETE FROM Artist WHERE ArtistID = ?");
-    $stmt->execute([$artistID]);
     header("Location: manage_artists.php");
     exit;
 }
