@@ -59,7 +59,7 @@ h2{
 <div class="container mt-5">
     <h2>Manage Artists</h2>
     <div style="text-align: center;">
-    <button style="display: inline-block;" class="btn btn-primary mb-3" data-toggle="modal" data-target="#paintingModal" onclick="openAddModal()">Add Painting</button>
+    <button style="display: inline-block;" class="btn btn-primary mb-3" data-toggle="modal" data-target="#paintingModal" onclick="openAddModal()">Add Artist</button>
     </div>
     <div class="table-responsive">
         <table class="table table-bordered table-hover">
