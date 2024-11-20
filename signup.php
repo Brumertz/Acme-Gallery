@@ -66,11 +66,11 @@ if (isset($_POST['unsubscribe'])) {
 ?>
 
 <!-- Sign-Up Form -->
-<div style="text-align: center;" class="container mt-5">
-    <h2>Sign Up for Acme Gallery Membership</h2>
+<div style="text-align: center; margin-top: 50px;">
+    <h2>Sign-Up </h2>
+    <p>Acme Gallery Membership</p>
 </div>
-<br>
-<div class="container-fluid d-flex justify-content-center align-items-center" style="min-height: 50vh;">
+<div class="container-fluid d-flex justify-content-center align-items-center" style="min-height: 40vh;">
     <form method="POST">
         <div class="form-group">
             <label for="fullName">Full Name</label>
@@ -96,12 +96,10 @@ if (isset($_POST['unsubscribe'])) {
 </div>
 
 <!-- Unsubscribe Form -->
-<div style="text-align: center;" class="container mt-5">
-    <h2>Unsubscribe from Acme Gallery Communications</h2>
+<div style="text-align: center;" >
+    <h2>Unsubscribe</h2>
     <p>If you no longer wish to receive communications, please enter your email to request removal.</p>
-</div>
-<br>
-<div class="container-fluid d-flex justify-content-center align-items-center" style="min-height: 50vh;">
+    <div class="container-fluid d-flex justify-content-center align-items-center">
     <form method="POST">
         <div class="form-group">
             <label for="unsubscribeEmail">Email</label>
@@ -112,5 +110,4 @@ if (isset($_POST['unsubscribe'])) {
         </div>
     </form>
 </div>
-
 <?php include 'includes/footer.php'; ?>
